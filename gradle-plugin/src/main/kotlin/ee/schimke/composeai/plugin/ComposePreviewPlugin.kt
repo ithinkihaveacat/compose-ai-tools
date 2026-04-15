@@ -44,29 +44,46 @@ class ComposePreviewPlugin : Plugin<Project> {
             project.layout.buildDirectory.dir("tmp/kotlin-classes/$variant"),
             project.layout.buildDirectory.dir("intermediates/javac/$variant/classes"),
             project.layout.buildDirectory.dir("intermediates/built_in_kotlinc/$variant/compile${capVariant}Kotlin/classes"),
+            project.layout.buildDirectory.dir("tmp/kotlin-classes/${variant}UnitTest"),
+            project.layout.buildDirectory.dir("intermediates/javac/${variant}UnitTest/compile${capVariant}UnitTestJavaWithJavac/classes"),
+            project.layout.buildDirectory.dir("intermediates/built_in_kotlinc/${variant}UnitTest/compile${capVariant}UnitTestKotlin/classes"),
         )
 
         val dependencyConfigName = "${variant}RuntimeClasspath"
 
         val discoverTask = registerDiscoverTask(project, sourceClassDirs, dependencyConfigName, previewOutputDir, extension) {
             dependsOn("compile${capVariant}Kotlin")
+            dependsOn("compile${capVariant}UnitTestKotlin")
+            dependsOn("compile${capVariant}UnitTestJavaWithJavac")
         }
 
-        val hasAndroidRenderer = project.rootProject.findProject(":renderer-android") != null
+        val rendererProject = try {
+            project.rootProject.project(":renderer-android")
+        } catch (_: Exception) {
+            null
+        }
+        val siblingRendererDir = java.io.File(project.rootDir, "../../compose-ai-tools/renderer-android")
+        val hasAndroidRenderer = rendererProject != null || siblingRendererDir.exists()
 
         if (hasAndroidRenderer) {
             val artifactType = Attribute.of("artifactType", String::class.java)
-            val rendererProject = project.rootProject.project(":renderer-android")
-            val rendererClassDirs = project.files(
-                rendererProject.layout.buildDirectory.dir("intermediates/built_in_kotlinc/$variant/compile${capVariant}Kotlin/classes"),
-                rendererProject.layout.buildDirectory.dir("tmp/kotlin-classes/$variant"),
-            )
+            val rendererClassDirs = if (rendererProject != null) {
+                project.files(
+                    rendererProject.layout.buildDirectory.dir("intermediates/built_in_kotlinc/$variant/compile${capVariant}Kotlin/classes"),
+                    rendererProject.layout.buildDirectory.dir("tmp/kotlin-classes/$variant"),
+                )
+            } else {
+                project.files(
+                    java.io.File(siblingRendererDir, "build/intermediates/built_in_kotlinc/$variant/compile${capVariant}Kotlin/classes"),
+                    java.io.File(siblingRendererDir, "build/tmp/kotlin-classes/$variant")
+                )
+            }
 
             // Build the classpath at configuration time using lazy file collections.
             // Use debugUnitTestRuntimeClasspath with artifact view filtering to get
             // extracted JARs from AARs (AGP registers the transforms).
             val testConfig = project.configurations.findByName("${variant}UnitTestRuntimeClasspath")
-            val rendererConfig = rendererProject.configurations.findByName("${variant}RuntimeClasspath")
+            val rendererConfig = rendererProject?.configurations?.findByName("${variant}RuntimeClasspath")
 
             // The SDK stub android.jar is on the OUTER classpath so JUnit can introspect
             // the test class (RobolectricRenderTest.kt references android.graphics.Bitmap,
@@ -82,7 +99,12 @@ class ComposePreviewPlugin : Plugin<Project> {
             val compileSdk = android?.compileSdk ?: 36
             val sdkDir = findAndroidSdkDir(project)
 
+            val agpTestTask = project.tasks.findByName("test${capVariant}UnitTest") as? Test
+
             val resolvedClasspath = project.files().apply {
+                if (agpTestTask != null) {
+                    from(agpTestTask.classpath)
+                }
                 if (testConfig != null) {
                     from(testConfig.incoming.artifactView {
                         attributes.attribute(artifactType, "jar")
@@ -101,12 +123,27 @@ class ComposePreviewPlugin : Plugin<Project> {
                 // android.jar for JUnit's outer-classloader test discovery (see above).
                 if (sdkDir != null) {
                     val androidJar = java.io.File("$sdkDir/platforms/android-$compileSdk/android.jar")
-                    if (androidJar.exists()) from(androidJar)
+                    val androidJarV = java.io.File("$sdkDir/platforms/android-$compileSdk.0/android.jar")
+                    if (androidJar.exists()) {
+                        from(androidJar)
+                    } else if (androidJarV.exists()) {
+                        from(androidJarV)
+                    } else {
+                        // Look for ANY valid android.jar in platforms/
+                        val platformsDir = java.io.File("$sdkDir/platforms")
+                        if (platformsDir.exists()) {
+                            val availableJar = platformsDir.listFiles()
+                                ?.filter { it.isDirectory }
+                                ?.map { java.io.File(it, "android.jar") }
+                                ?.find { it.exists() }
+                            if (availableJar != null) from(availableJar)
+                        }
+                    }
                 }
             }
 
             // Copy JVM args from AGP's test task (at configuration time, safe for config cache)
-            val agpTestTask = project.tasks.findByName("test${capVariant}UnitTest") as? Test
+
             val agpJvmArgs = agpTestTask?.jvmArgs ?: emptyList()
 
             val manifestFile = previewOutputDir.map { it.file("previews.json").asFile.absolutePath }
@@ -179,6 +216,7 @@ class ComposePreviewPlugin : Plugin<Project> {
                     "--add-opens=java.base/java.nio=ALL-UNNAMED",
                 )
 
+
                 // Configure Robolectric via system properties instead of @Config/@GraphicsMode
                 // annotations — annotations trigger eager android.app.Application resolution
                 // before the sandbox classloader exists.
@@ -203,8 +241,14 @@ class ComposePreviewPlugin : Plugin<Project> {
                 systemProperty("composeai.render.outputDir", rendersDir.get())
 
                 dependsOn(discoverTask)
-                dependsOn(":renderer-android:compile${capVariant}Kotlin")
+                if (rendererProject != null) {
+                    dependsOn(":renderer-android:compile${capVariant}Kotlin")
+                }
                 dependsOn("process${capVariant}Resources")
+                dependsOn("compile${capVariant}UnitTestKotlin")
+                dependsOn("compile${capVariant}UnitTestJavaWithJavac")
+
+
                 val configTaskName = "generate${capVariant}UnitTestConfig"
                 if (project.tasks.findByName(configTaskName) != null) {
                     dependsOn(configTaskName)

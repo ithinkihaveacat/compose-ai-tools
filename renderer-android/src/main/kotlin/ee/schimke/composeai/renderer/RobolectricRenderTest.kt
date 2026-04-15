@@ -23,10 +23,15 @@ import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.WindowRecomposerFactory
 import androidx.compose.ui.platform.WindowRecomposerPolicy
+import androidx.compose.ui.test.junit4.createComposeRule
+import com.github.takahirom.roborazzi.captureRoboImage
+import java.io.File
+import java.io.FileOutputStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -35,8 +40,6 @@ import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import org.robolectric.shadows.ShadowLooper
-import java.io.File
-import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 
 /**
@@ -101,7 +104,7 @@ object PreviewManifestLoader {
 // SDK 34 is the highest API where Robolectric 4.16.1 still shadows
 // `ShadowNativeImageReaderSurfaceImage.nativeCreatePlanes`. Above that, the
 // HardwareRenderingScreenshot path returns an Image with `planes[0] == null`.
-@Config(sdk = [34])
+@Config(sdk = [35], qualifiers = "w227dp-h227dp-small-notlong-round-watch-xhdpi-keyshidden-nonav")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 abstract class RobolectricRenderTestBase(private val preview: RenderPreviewEntry) {
 
@@ -115,72 +118,26 @@ abstract class RobolectricRenderTestBase(private val preview: RenderPreviewEntry
     private val heightDp: Int = preview.params.heightDp?.takeIf { it > 0 } ?: DEFAULT_HEIGHT
     private val widthPx: Int = (widthDp * DENSITY).toInt()
     private val heightPx: Int = (heightDp * DENSITY).toInt()
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
     @Test
-    @OptIn(InternalComposeUiApi::class)
     fun renderPreview() {
-        val pausedClock = BroadcastFrameClock()
-        val recomposerContext = AndroidUiDispatcher.CurrentThread + pausedClock
-        val recomposerScope = CoroutineScope(recomposerContext)
-        val recomposer = Recomposer(recomposerContext)
-        val recomposerJob: Job = recomposerScope.launch { recomposer.runRecomposeAndApplyChanges() }
-
-        WindowRecomposerPolicy.setFactory(WindowRecomposerFactory { _ -> recomposer })
-        val bitmap = try {
-            render()
-        } finally {
-            recomposer.cancel()
-            recomposerJob.cancel()
-        }
-
-        val finalBitmap = if (isRoundDevice(preview.params.device) && preview.params.showSystemUi) {
-            val clipped = applyCircularClip(bitmap)
-            bitmap.recycle()
-            clipped
-        } else {
-            bitmap
-        }
-
-        val outputDir = File(System.getProperty("composeai.render.outputDir") ?: "build/compose-previews/renders")
-        val outputFile = File(outputDir, "${preview.id}.png")
-        outputFile.parentFile?.mkdirs()
-        FileOutputStream(outputFile).use { fos ->
-            finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
-        }
-        finalBitmap.recycle()
-    }
-
-    private fun render(): Bitmap {
-        val controller = Robolectric.buildActivity(ComponentActivity::class.java)
-        val activity = controller.get()
-        // NoActionBar: the default theme's ActionBar takes 56dp off the top of the
-        // content frame, clipping Compose content that expects the full viewport.
-        activity.setTheme(android.R.style.Theme_Material_Light_NoActionBar)
-        // `setFlags` with explicit mask (not `addFlags`) guarantees the flag is set
-        // before the window attaches to WindowManager, so AndroidComposeView sees it
-        // during its first onAttachedToWindow pass.
-        val hwAccel = android.view.WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
-        activity.window.setFlags(hwAccel, hwAccel)
-        controller.create().start().resume().visible()
-        configureDisplay(activity)
-
-        activity.setContent {
+        composeTestRule.setContent {
+            println("Entering setContent composition")
             CompositionLocalProvider(LocalInspectionMode provides true) {
                 val clazz = Class.forName(preview.className)
                 val composableMethod = clazz.getDeclaredComposableMethod(preview.functionName)
                 val bgColor = when {
                     preview.params.backgroundColor != 0L -> Color(preview.params.backgroundColor.toInt())
                     preview.params.showBackground -> Color.White
-                    else -> Color.Transparent
+                    else -> Color.Black
                 }
                 val body: @Composable () -> Unit = {
                     Box(modifier = Modifier.fillMaxSize().background(bgColor)) {
                         InvokeComposable(composableMethod, null)
                     }
                 }
-                // `@PreviewWrapper(Provider::class)` — instantiate the provider reflectively
-                // and call its `Wrap { body() }`. Reflection keeps this renderer compatible
-                // with apps on stable Compose (no `PreviewWrapperProvider` on classpath).
                 val wrapperFqn = preview.params.wrapperClassName
                 if (wrapperFqn != null) {
                     InvokeWrappedComposable(wrapperFqn, body)
@@ -190,33 +147,30 @@ abstract class RobolectricRenderTestBase(private val preview: RenderPreviewEntry
             }
         }
 
-        // ComposeView defaults to wrap_content, which resolves `Modifier.fillMaxSize()`
-        // to the view's intrinsic (post-measure) size rather than the viewport. Force
-        // MATCH_PARENT so EXACTLY constraints cascade through the Compose tree.
-        findComposeView(activity.window.decorView)?.apply {
-            layoutParams = layoutParams.apply {
-                width = ViewGroup.LayoutParams.MATCH_PARENT
-                height = ViewGroup.LayoutParams.MATCH_PARENT
-            }
+        composeTestRule.waitForIdle()
+
+        val outputDir = File(System.getProperty("composeai.render.outputDir") ?: "build/compose-previews/renders")
+        val outputFile = File(outputDir, "${preview.id}.png")
+        outputFile.parentFile?.mkdirs()
+
+        val tempFile = File.createTempFile("roborazzi", ".png")
+        val rootNode = composeTestRule.onAllNodes(androidx.compose.ui.test.isRoot())[0]
+        rootNode.captureRoboImage(tempFile.absolutePath)
+        val bitmap = android.graphics.BitmapFactory.decodeFile(tempFile.absolutePath)
+        tempFile.delete()
+
+        val finalBitmap = if (isRoundDevice(preview.params.device) && preview.params.showSystemUi) {
+            val clipped = applyCircularClip(bitmap)
+            bitmap.recycle()
+            clipped
+        } else {
+            bitmap
         }
 
-        val decor = activity.window.decorView
-        val wSpec = View.MeasureSpec.makeMeasureSpec(widthPx, View.MeasureSpec.EXACTLY)
-        val hSpec = View.MeasureSpec.makeMeasureSpec(heightPx, View.MeasureSpec.EXACTLY)
-
-        // Several measure/layout passes let Compose's snapshot state, layout, and
-        // RenderNode recording converge. The paused frame clock parks `withFrameNanos`
-        // awaiters (so infinite animations don't stall us), but composition still
-        // requires the main looper to drain runnables that setContent posts.
-        repeat(5) {
-            ShadowLooper.idleMainLooper(16L, TimeUnit.MILLISECONDS)
-            decor.measure(wSpec, hSpec)
-            decor.layout(0, 0, widthPx, heightPx)
-            decor.invalidate()
-            ShadowLooper.idleMainLooper(16L, TimeUnit.MILLISECONDS)
+        FileOutputStream(outputFile).use { fos ->
+            finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
         }
-
-        return captureHardware(decor, widthPx, heightPx)
+        finalBitmap.recycle()
     }
 
     /**
@@ -236,19 +190,15 @@ abstract class RobolectricRenderTestBase(private val preview: RenderPreviewEntry
      * `test_config.properties` plumbing overhead.
      */
     private fun captureHardware(view: View, width: Int, height: Int): Bitmap {
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val clazz = Class.forName("org.robolectric.shadows.HardwareRenderingScreenshot")
-        val takeScreenshot = clazz.getDeclaredMethod(
-            "takeScreenshot",
-            View::class.java,
-            Bitmap::class.java,
-        ).apply { isAccessible = true }
-        takeScreenshot.invoke(null, view, bitmap)
+        val tempFile = File.createTempFile("roborazzi", ".png")
+        view.captureRoboImage(tempFile)
+        val bitmap = android.graphics.BitmapFactory.decodeFile(tempFile.absolutePath)
+        tempFile.delete()
         return bitmap
     }
 
     private fun findComposeView(view: View): View? {
-        // Matches by simple name to avoid a hard dep on Compose-internal types.
+        println("Visiting view: ${view.javaClass.name} (simpleName: ${view.javaClass.simpleName})")
         if (view.javaClass.simpleName == "ComposeView") return view
         if (view is ViewGroup) {
             for (i in 0 until view.childCount) {
