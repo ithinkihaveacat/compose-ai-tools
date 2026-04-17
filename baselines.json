@@ -1,0 +1,132 @@
+{
+  "sample-android/com.example.sampleandroid.PreviewsKt.BlueBoxPreview_Blue Box": {
+    "functionName": "BlueBoxPreview",
+    "sha256": "45e880ed216bddfd6dce62c4e99942627e155e20653cc9d9e3eb597512ba0e41",
+    "sourceFile": "com/example/sampleandroid/Previews.kt"
+  },
+  "sample-android/com.example.sampleandroid.PreviewsKt.ConfigProbePreview_Default": {
+    "functionName": "ConfigProbePreview",
+    "sha256": "0b18aa813d50c7382e9ee58779464cda826bf67ee3136d80d7ece1eccfe59ae0",
+    "sourceFile": "com/example/sampleandroid/Previews.kt"
+  },
+  "sample-android/com.example.sampleandroid.PreviewsKt.ConfigProbePreview_German": {
+    "functionName": "ConfigProbePreview",
+    "sha256": "c9d76e99eeaf5c99c27412562ead5bdbf6cc4b362339ec5135f9e9de9a45d122",
+    "sourceFile": "com/example/sampleandroid/Previews.kt"
+  },
+  "sample-android/com.example.sampleandroid.PreviewsKt.ConfigProbePreview_Night": {
+    "functionName": "ConfigProbePreview",
+    "sha256": "3bfa4d3d9304ace2ba9c724ef5ac1179f59f0f8f13de7f0077c50408a5f2026f",
+    "sourceFile": "com/example/sampleandroid/Previews.kt"
+  },
+  "sample-android/com.example.sampleandroid.PreviewsKt.GreenBoxPreview_Green Box": {
+    "functionName": "GreenBoxPreview",
+    "sha256": "2b171bcaa60c9495e8ac4dc59932c6b8844cfda4b3e6a0dafa82bd7c67d461ba",
+    "sourceFile": "com/example/sampleandroid/Previews.kt"
+  },
+  "sample-android/com.example.sampleandroid.PreviewsKt.GreetingPreview_Default": {
+    "functionName": "GreetingPreview",
+    "sha256": "2a274d9f8d6fc960c567e56a426882c1f2d96af04e553aff9d1977fc4b404acd",
+    "sourceFile": "com/example/sampleandroid/Previews.kt"
+  },
+  "sample-android/com.example.sampleandroid.PreviewsKt.LoadingPreview_Loading Spinner": {
+    "functionName": "LoadingPreview",
+    "sha256": "063e138623d757f0cc9f1ba62b46ba73cf5b644c665f7da6c8dd93cccd672854",
+    "sourceFile": "com/example/sampleandroid/Previews.kt"
+  },
+  "sample-android/com.example.sampleandroid.PreviewsKt.PhoneGreetingPreview_Phone": {
+    "functionName": "PhoneGreetingPreview",
+    "sha256": "03aa7799b0f8fa98c25cda319daf7b9c9465948a775f7c85182e2c49a29cb2d7",
+    "sourceFile": "com/example/sampleandroid/Previews.kt"
+  },
+  "sample-android/com.example.sampleandroid.PreviewsKt.RedBoxPreview_Red Box": {
+    "functionName": "RedBoxPreview",
+    "sha256": "86957af87a00b88f4067c72ec697880f9270619735fc6b95ac9674fc53d2265c",
+    "sourceFile": "com/example/sampleandroid/Previews.kt"
+  },
+  "sample-cmp/com.example.samplecmp.PreviewsKt.AppPreview": {
+    "functionName": "AppPreview",
+    "sha256": "c277d692dbe0b77fbba7b759789b4eb6dbdace22b12f4f3963468be5489faadc",
+    "sourceFile": "com/example/samplecmp/Previews.kt"
+  },
+  "sample-cmp/com.example.samplecmp.PreviewsKt.BlueBoxPreview_Blue Box": {
+    "functionName": "BlueBoxPreview",
+    "sha256": "9873b420426a91a14e02de7094e4b66be9abcbe6d5c993e1cfa012a927c4d557",
+    "sourceFile": "com/example/samplecmp/Previews.kt"
+  },
+  "sample-cmp/com.example.samplecmp.PreviewsKt.RedBoxPreview_Red Box": {
+    "functionName": "RedBoxPreview",
+    "sha256": "38b1a2303720f98733656c04604e9d38963421828539c8e2db477e1b015e8269",
+    "sourceFile": "com/example/samplecmp/Previews.kt"
+  },
+  "sample-wear/com.example.samplewear.PreviewsKt.ActivityListFontScalesPreview_Fonts - Large": {
+    "functionName": "ActivityListFontScalesPreview",
+    "sha256": "f6c367a9acc23c87a2eb7a4c6eb2e341a6839b8839e0dc8820daa3bac94e84c0",
+    "sourceFile": "com/example/samplewear/Previews.kt"
+  },
+  "sample-wear/com.example.samplewear.PreviewsKt.ActivityListFontScalesPreview_Fonts - Larger": {
+    "functionName": "ActivityListFontScalesPreview",
+    "sha256": "48ce73d00b735e25ecff37d313583d4f5f61417a91d6a79823bd2b8a3eef5db7",
+    "sourceFile": "com/example/samplewear/Previews.kt"
+  },
+  "sample-wear/com.example.samplewear.PreviewsKt.ActivityListFontScalesPreview_Fonts - Largest": {
+    "functionName": "ActivityListFontScalesPreview",
+    "sha256": "983a810b902fa46fcfbc9614d872cb67a8232e3a501d55040ac9632a2e2c5b37",
+    "sourceFile": "com/example/samplewear/Previews.kt"
+  },
+  "sample-wear/com.example.samplewear.PreviewsKt.ActivityListFontScalesPreview_Fonts - Medium": {
+    "functionName": "ActivityListFontScalesPreview",
+    "sha256": "7cbd48efb96544956a47363c01da90e2b22ca650877de517cc13bc81bfb05b25",
+    "sourceFile": "com/example/samplewear/Previews.kt"
+  },
+  "sample-wear/com.example.samplewear.PreviewsKt.ActivityListFontScalesPreview_Fonts - Normal": {
+    "functionName": "ActivityListFontScalesPreview",
+    "sha256": "fcd122e76a576a88f8e2b427462f447deb2ae0ed218a003b1a143a90d1549b0d",
+    "sourceFile": "com/example/samplewear/Previews.kt"
+  },
+  "sample-wear/com.example.samplewear.PreviewsKt.ActivityListFontScalesPreview_Fonts - Small": {
+    "functionName": "ActivityListFontScalesPreview",
+    "sha256": "ad0f0ef8e2b031d7e3556ff1ab665d9b6551432ba485e4d1acb727197f85e96a",
+    "sourceFile": "com/example/samplewear/Previews.kt"
+  },
+  "sample-wear/com.example.samplewear.PreviewsKt.ActivityListPreview_Devices - Large Round": {
+    "functionName": "ActivityListPreview",
+    "sha256": "1dbde292e65a5cc478560dee924f071675b8086fb0b925921ae6688bdba55b0d",
+    "sourceFile": "com/example/samplewear/Previews.kt"
+  },
+  "sample-wear/com.example.samplewear.PreviewsKt.ActivityListPreview_Devices - Small Round": {
+    "functionName": "ActivityListPreview",
+    "sha256": "fcd122e76a576a88f8e2b427462f447deb2ae0ed218a003b1a143a90d1549b0d",
+    "sourceFile": "com/example/samplewear/Previews.kt"
+  },
+  "sample-wear/com.example.samplewear.PreviewsKt.ButtonPreview_Devices - Large Round": {
+    "functionName": "ButtonPreview",
+    "sha256": "7ae24ccca0f554d0848e143a8d937f75a8a764f8f99d8f079e28a5c50e0b721d",
+    "sourceFile": "com/example/samplewear/Previews.kt"
+  },
+  "sample-wear/com.example.samplewear.PreviewsKt.ButtonPreview_Devices - Small Round": {
+    "functionName": "ButtonPreview",
+    "sha256": "9e262c99724b086c4c1703fe2540e4fc654b10ddd360f29a59a7f5d134124414",
+    "sourceFile": "com/example/samplewear/Previews.kt"
+  },
+  "sample-wear/com.example.samplewear.TilePreviewsKt.CounterTilePreview_Large Round": {
+    "functionName": "CounterTilePreview",
+    "sha256": "ff695769bb39c22f5601fc753eb6ec6147b2a06e173fd151ce0d7442002d8ee7",
+    "sourceFile": "com/example/samplewear/TilePreviews.kt"
+  },
+  "sample-wear/com.example.samplewear.TilePreviewsKt.CounterTilePreview_Small Round": {
+    "functionName": "CounterTilePreview",
+    "sha256": "5f61fda4216b25d2cf0085a72ba70352628bc0f90c847e47d1b59a704d2a6c25",
+    "sourceFile": "com/example/samplewear/TilePreviews.kt"
+  },
+  "sample-wear/com.example.samplewear.TilePreviewsKt.HelloTilePreview_Large Round": {
+    "functionName": "HelloTilePreview",
+    "sha256": "eb8cbedb12a39c4d0e6594276497427e66befbf4e5342de1bb93fb76a9df890a",
+    "sourceFile": "com/example/samplewear/TilePreviews.kt"
+  },
+  "sample-wear/com.example.samplewear.TilePreviewsKt.HelloTilePreview_Small Round": {
+    "functionName": "HelloTilePreview",
+    "sha256": "799064fdb91b679616ceae8da01d1b6c6dc0e715cd31a8855a6a7c95fb44c8f1",
+    "sourceFile": "com/example/samplewear/TilePreviews.kt"
+  }
+}
