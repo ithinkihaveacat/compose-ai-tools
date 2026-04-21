@@ -400,20 +400,13 @@ internal object AndroidPreviewSupport {
             }
             from(sourceClassDirs)
             from(unitTestConfigDir)
-            // SDK stub android.jar on the OUTER classpath so JUnit can introspect
-            // the test class (RobolectricRenderTest.kt references android.graphics.Bitmap,
-            // android.view.PixelCopy, etc. in method signatures). Without it, JUnit fails
-            // with `NoClassDefFoundError: android/graphics/Bitmap` during test discovery,
-            // before Robolectric's sandbox classloader is even created.
-            //
-            // Inside the sandbox, `ParameterizedRobolectricTestRunner` loads the test class
-            // through Robolectric's InstrumentingClassLoader, which delegates `android.*`
-            // resolution to its own `android-all` artifact (real framework classes, with
-            // shadows applied). The outer stub does NOT shadow the sandboxed PixelCopy.
-            //
-            // Sourced from AGP's SdkComponents so we don't have to parse local.properties
-            // or read rootProject.file(...).
-            from(project.files(bootClasspath))
+            // SDK stub android.jar was historically added here to prevent JUnit 
+            // NoClassDefFoundErrors during test discovery. However, adding the raw
+            // android.jar to the test worker application classpath causes JVM 
+            // AnnotationParser crashes (ClassNotFoundException: android.app.Application) 
+            // on JDK 25+ Linux due to strict module classloading behavior. 
+            // We now rely exclusively on `agpTestClasspath` (which contains AGP's safe 
+            // `mockable-android.jar`) added during task configuration.
         }
 
         val manifestFile = previewOutputDir.map { it.file("previews.json").asFile.absolutePath }
@@ -507,6 +500,12 @@ internal object AndroidPreviewSupport {
             // a chance to register `test${capVariant}UnitTest` by the time this
             // runs — onVariants fires before unit-test tasks are wired.
             jvmArgs(agpTestTask?.jvmArgs ?: emptyList<String>())
+            agpTestTask?.let { agpTask ->
+                if (agpTask.javaLauncher.isPresent) {
+                    javaLauncher.set(agpTask.javaLauncher)
+                }
+            }
+
             jvmArgs(
                 "--add-opens=java.base/java.lang=ALL-UNNAMED",
                 "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
