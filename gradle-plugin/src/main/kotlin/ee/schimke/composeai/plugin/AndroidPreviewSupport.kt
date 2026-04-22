@@ -502,6 +502,10 @@ internal object AndroidPreviewSupport {
             }
             useJUnit()
 
+            agpTestTask?.let {
+                javaLauncher.set(it.javaLauncher)
+            }
+
             // Copy JVM args from AGP's test task. Deferred to the configuration
             // lambda (rather than called at registration time) so AGP has had
             // a chance to register `test${capVariant}UnitTest` by the time this

@@ -220,8 +220,6 @@ object PreviewManifestLoader {
  * Robolectric. Consumers can set `composePreview.useConsumerApplication = true`
  * to restore the manifest-declared Application.
  */
-@Config(sdk = [35])
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 abstract class RobolectricRenderTestBase(
     private val preview: RenderPreviewEntry,
     /**
