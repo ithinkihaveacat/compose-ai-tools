@@ -102,7 +102,7 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
             val javaVersion = System.getProperty("java.version")
             val majorVersion = javaVersion.substringBefore('.').toIntOrNull() ?: 0
             if (majorVersion >= 9) {
-                logger.lifecycle(
+                println(
                     "compose-ai-tools: WARNING: ANDROID_JAR environment variable is set to '$androidJarEnv'. " +
                     "This may cause '-Xbootclasspath is no longer a supported option' failures " +
                     "on Java 9+ when running custom test tasks on some platforms (like Linux). " +
