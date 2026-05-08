@@ -834,11 +834,7 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
     }
   }
 
-  private data class WearWidgetSpec(
-    val frame: String,
-    val title: String,
-    val icon: String
-  )
+  private data class WearWidgetSpec(val frame: String, val title: String, val icon: String)
 
   private fun extractWearWidgetSpec(annotations: List<AnnotationInfo>): WearWidgetSpec? {
     val ann = annotations.firstOrNull { it.name == WEAR_WIDGET_PREVIEW_FQN } ?: return null
@@ -846,7 +842,7 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
     return WearWidgetSpec(
       frame = (pv.getValue("frame") as? String) ?: "small",
       title = (pv.getValue("title") as? String) ?: "Wear Widget",
-      icon = (pv.getValue("icon") as? String) ?: "🤖"
+      icon = (pv.getValue("icon") as? String) ?: "🤖",
     )
   }
 

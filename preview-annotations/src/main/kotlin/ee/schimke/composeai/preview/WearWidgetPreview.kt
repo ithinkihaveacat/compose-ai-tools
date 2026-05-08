@@ -6,7 +6,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.ANNOTATION_CLASS)
 @Retention(AnnotationRetention.BINARY)
 annotation class WearWidgetPreview(
-    val frame: String = "small",
-    val title: String = "Wear Widget",
-    val icon: String = "🤖"
+  val frame: String = "small",
+  val title: String = "Wear Widget",
+  val icon: String = "🤖",
 )

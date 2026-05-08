@@ -917,11 +917,14 @@ class JsonRpcServer(
           wallpaper = overrides?.wallpaper,
           wearWidgetFrame = frame,
           wearWidgetTitle = title,
-          wearWidgetIcon = icon
+          wearWidgetIcon = icon,
         )
-      
-      val hasExtensionOverrides = extensionBag.material3Theme != null || extensionBag.wallpaper != null ||
-          extensionBag.wearWidgetFrame != null || extensionBag.wearWidgetTitle != null ||
+
+      val hasExtensionOverrides =
+        extensionBag.material3Theme != null ||
+          extensionBag.wallpaper != null ||
+          extensionBag.wearWidgetFrame != null ||
+          extensionBag.wearWidgetTitle != null ||
           extensionBag.wearWidgetIcon != null
 
       if (overrides != null) {
