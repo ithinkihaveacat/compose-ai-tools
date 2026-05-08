@@ -334,6 +334,7 @@ A `classpath` event triggers Tier-1 fingerprint recomputation; on mismatch the d
     }>;
     shapes?: Record<string, number>; // Shape token name -> rounded corner size in dp.
   };
+  extensionParams?: Record<string, string>; // Form-factor-specific parameters (e.g. {formFactor: "wearWidget", frame: "small"})
 }
 
 // result

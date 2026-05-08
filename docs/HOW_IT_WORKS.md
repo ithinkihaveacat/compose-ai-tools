@@ -12,14 +12,13 @@ Scan compiled class files for `@Preview` annotations →
 ```
 For each method in each compiled class:
 
-  1. Check for direct @Preview or @Preview.Container annotations on the method.
-     If found, extract preview parameters (name, device, dimensions, backgroundColor, etc.)
-     and emit a preview entry.
+  1. Check for direct @Preview, @Preview.Container, or @RemoteComposePreview annotations on the method.
+     If found, extract preview parameters (name, device, dimensions, backgroundColor, etc.). For @RemoteComposePreview, extract `formFactor` and `params` into `extensionParams`. Emit a preview entry.
 
-  2. Otherwise, walk the method's annotations looking for multi-preview meta-annotations.
-     For each annotation, check whether *its* annotation class carries @Preview.
+  2. Otherwise, walk the method's annotations looking for multi-preview meta-annotations or meta-annotations that carry `@RemoteComposePreview` (like `@WearWidgetPreview`).
+     For each annotation, check whether *its* annotation class carries `@Preview` or `@RemoteComposePreview`.
      Recurse through meta-annotations (with cycle detection via a visited set).
-     Emit a preview entry for each @Preview found transitively.
+     Emit a preview entry for each found transitively.
 
 Deduplicate by fully-qualified name + preview name + device + dimensions.
 ```
@@ -55,7 +54,7 @@ graphics (`graphicsMode=NATIVE`, `pixelCopyRenderMode=hardware`).
    orientation) via `RuntimeEnvironment.setQualifiers` and `setFontScale`.
 
 2. Set the activity content to a background fill + reflected composable
-   invocation, with `LocalInspectionMode = true`.
+   invocation, with `LocalInspectionMode = true`. If `extensionParams` contains `formFactor`, use `FrameDecoratorRegistry` to select a decorator (e.g., `WearWidgetFrameDecorator`) to wrap the content before setting it.
 
 3. Pause Compose's main clock (`autoAdvance = false`) and step it by a
    fixed amount so infinite animations terminate deterministically instead
