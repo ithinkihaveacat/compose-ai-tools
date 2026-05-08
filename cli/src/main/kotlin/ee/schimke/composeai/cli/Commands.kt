@@ -44,6 +44,7 @@ data class PreviewParams(
   val previewParameterLimit: Int = Int.MAX_VALUE,
   /** "COMPOSE" or "TILE". Free-form string so unknown future kinds round-trip. */
   val kind: String = "COMPOSE",
+  val extensionParams: Map<String, String> = emptyMap(),
 )
 
 /**
