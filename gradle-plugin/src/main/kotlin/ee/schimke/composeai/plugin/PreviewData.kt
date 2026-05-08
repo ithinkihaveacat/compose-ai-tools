@@ -241,6 +241,9 @@ data class PreviewParams(
    */
   val previewParameterLimit: Int = Int.MAX_VALUE,
   val kind: PreviewKind = PreviewKind.COMPOSE,
+  val wearWidgetFrame: String? = null,
+  val wearWidgetTitle: String? = null,
+  val wearWidgetIcon: String? = null,
 )
 
 /**

@@ -1,9 +1,25 @@
 package ee.schimke.composeai.renderer
 
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.layout
@@ -731,10 +747,26 @@ abstract class RobolectricRenderTestBase(
                                     strategyFor(params.kind).Render(preview, widthDp, heightDp, previewArgs)
                                 }
                             }
+                            
+                            val frame = params.wearWidgetFrame
+                            val framedCore: @Composable () -> Unit = {
+                                if (frame != null) {
+                                    WearWidgetFrame(
+                                        frameType = frame,
+                                        title = params.wearWidgetTitle,
+                                        icon = params.wearWidgetIcon
+                                    ) {
+                                        core()
+                                    }
+                                } else {
+                                    core()
+                                }
+                            }
+
                             if (applySystemBars) {
-                                SystemBarsFrame(uiMode = params.uiMode) { core() }
+                                SystemBarsFrame(uiMode = params.uiMode) { framedCore() }
                             } else {
-                                core()
+                                framedCore()
                             }
                         }
                         val curveOrPlain: @Composable () -> Unit = {
@@ -1873,4 +1905,48 @@ class RobolectricRenderTest(
         @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
         fun previews(): List<Array<Any>> = PreviewManifestLoader.loadShard(0, 1)
     }
+}
+
+@Composable
+private fun WearWidgetFrame(
+  frameType: String,
+  title: String?,
+  icon: String?,
+  content: @Composable () -> Unit
+) {
+  val height = when (frameType.lowercase()) {
+    "small" -> 70.dp
+    "large" -> 100.dp
+    else -> 70.dp
+  }
+  val width = 160.dp
+
+  Box(
+    modifier = Modifier.fillMaxSize().background(Color.Black),
+    contentAlignment = Alignment.Center
+  ) {
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.Center
+    ) {
+      // Header: Icon + Text
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(bottom = 8.dp)
+      ) {
+        Text(text = icon ?: "🤖", fontSize = 16.sp, modifier = Modifier.padding(end = 4.dp))
+        Text(text = title ?: "Wear Widget", color = Color.White, fontSize = 14.sp)
+      }
+
+      // The Widget
+      Box(
+        modifier = Modifier
+          .size(width, height)
+          .clip(RoundedCornerShape(16.dp))
+          .background(Color.DarkGray)
+      ) {
+        content()
+      }
+    }
+  }
 }

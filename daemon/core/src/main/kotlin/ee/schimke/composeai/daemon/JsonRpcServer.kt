@@ -906,76 +906,91 @@ class JsonRpcServer(
   private fun encodeRenderPayload(previewId: String, overrides: PreviewOverrides?): String {
     return buildString {
       if (previewId.isNotEmpty()) append("previewId=").append(previewId)
-      if (overrides == null) return@buildString
-      val deviceToken = overrides.device?.takeIf { it.isNotBlank() }
-      val deviceSpec = deviceToken?.let {
-        ee.schimke.composeai.daemon.devices.DeviceDimensions.resolve(it)
-      }
-      val deviceWidthPx = deviceSpec?.let { (it.widthDp * it.density).toInt() }
-      val deviceHeightPx = deviceSpec?.let { (it.heightDp * it.density).toInt() }
-      val deviceDensity = deviceSpec?.density
-      (overrides.widthPx ?: deviceWidthPx)?.let {
-        if (isNotEmpty()) append(';')
-        append("widthPx=").append(it)
-      }
-      (overrides.heightPx ?: deviceHeightPx)?.let {
-        if (isNotEmpty()) append(';')
-        append("heightPx=").append(it)
-      }
-      (overrides.density ?: deviceDensity)?.let {
-        if (isNotEmpty()) append(';')
-        append("density=").append(it)
-      }
-      overrides.localeTag
-        ?.takeIf { it.isNotBlank() }
-        ?.let {
-          if (isNotEmpty()) append(';')
-          append("localeTag=").append(it)
-        }
-      overrides.fontScale?.let {
-        if (isNotEmpty()) append(';')
-        append("fontScale=").append(it)
-      }
-      overrides.uiMode?.let {
-        if (isNotEmpty()) append(';')
-        append("uiMode=")
-        append(
-          when (it) {
-            UiMode.LIGHT -> "light"
-            UiMode.DARK -> "dark"
-          }
-        )
-      }
-      overrides.orientation?.let {
-        if (isNotEmpty()) append(';')
-        append("orientation=")
-        append(
-          when (it) {
-            Orientation.PORTRAIT -> "portrait"
-            Orientation.LANDSCAPE -> "landscape"
-          }
-        )
-      }
-      deviceToken?.let {
-        if (isNotEmpty()) append(';')
-        append("device=").append(it)
-      }
-      overrides.captureAdvanceMs
-        ?.takeIf { it > 0L }
-        ?.let {
-          if (isNotEmpty()) append(';')
-          append("captureAdvanceMs=").append(it)
-        }
-      overrides.inspectionMode?.let {
-        if (isNotEmpty()) append(';')
-        append("inspectionMode=").append(it)
-      }
-      // Extension-driven overrides ride along as a single base64-encoded `PreviewOverrides`
-      // bag — the renderer's [PreviewOverrideExtensions] hands the bag to every registered
-      // planner. New override-driven fields don't need a new wire token; they ride this bag.
+      val previewInfo = previewIndex.byId(previewId)
+      val frame = overrides?.wearWidgetFrame ?: previewInfo?.params?.wearWidgetFrame
+      val title = overrides?.wearWidgetTitle ?: previewInfo?.params?.wearWidgetTitle
+      val icon = overrides?.wearWidgetIcon ?: previewInfo?.params?.wearWidgetIcon
+
       val extensionBag =
-        PreviewOverrides(material3Theme = overrides.material3Theme, wallpaper = overrides.wallpaper)
-      if (extensionBag.material3Theme != null || extensionBag.wallpaper != null) {
+        PreviewOverrides(
+          material3Theme = overrides?.material3Theme,
+          wallpaper = overrides?.wallpaper,
+          wearWidgetFrame = frame,
+          wearWidgetTitle = title,
+          wearWidgetIcon = icon
+        )
+      
+      val hasExtensionOverrides = extensionBag.material3Theme != null || extensionBag.wallpaper != null ||
+          extensionBag.wearWidgetFrame != null || extensionBag.wearWidgetTitle != null ||
+          extensionBag.wearWidgetIcon != null
+
+      if (overrides != null) {
+        val deviceToken = overrides.device?.takeIf { it.isNotBlank() }
+        val deviceSpec = deviceToken?.let {
+          ee.schimke.composeai.daemon.devices.DeviceDimensions.resolve(it)
+        }
+        val deviceWidthPx = deviceSpec?.let { (it.widthDp * it.density).toInt() }
+        val deviceHeightPx = deviceSpec?.let { (it.heightDp * it.density).toInt() }
+        val deviceDensity = deviceSpec?.density
+        (overrides.widthPx ?: deviceWidthPx)?.let {
+          if (isNotEmpty()) append(';')
+          append("widthPx=").append(it)
+        }
+        (overrides.heightPx ?: deviceHeightPx)?.let {
+          if (isNotEmpty()) append(';')
+          append("heightPx=").append(it)
+        }
+        (overrides.density ?: deviceDensity)?.let {
+          if (isNotEmpty()) append(';')
+          append("density=").append(it)
+        }
+        overrides.localeTag
+          ?.takeIf { it.isNotBlank() }
+          ?.let {
+            if (isNotEmpty()) append(';')
+            append("localeTag=").append(it)
+          }
+        overrides.fontScale?.let {
+          if (isNotEmpty()) append(';')
+          append("fontScale=").append(it)
+        }
+        overrides.uiMode?.let {
+          if (isNotEmpty()) append(';')
+          append("uiMode=")
+          append(
+            when (it) {
+              UiMode.LIGHT -> "light"
+              UiMode.DARK -> "dark"
+            }
+          )
+        }
+        overrides.orientation?.let {
+          if (isNotEmpty()) append(';')
+          append("orientation=")
+          append(
+            when (it) {
+              Orientation.PORTRAIT -> "portrait"
+              Orientation.LANDSCAPE -> "landscape"
+            }
+          )
+        }
+        deviceToken?.let {
+          if (isNotEmpty()) append(';')
+          append("device=").append(it)
+        }
+        overrides.captureAdvanceMs
+          ?.takeIf { it > 0L }
+          ?.let {
+            if (isNotEmpty()) append(';')
+            append("captureAdvanceMs=").append(it)
+          }
+        overrides.inspectionMode?.let {
+          if (isNotEmpty()) append(';')
+          append("inspectionMode=").append(it)
+        }
+      }
+
+      if (hasExtensionOverrides) {
         if (isNotEmpty()) append(';')
         append("overrides=")
         append(

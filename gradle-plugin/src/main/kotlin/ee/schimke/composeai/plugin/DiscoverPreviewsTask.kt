@@ -69,6 +69,7 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
   }
 
   companion object {
+    private const val WEAR_WIDGET_PREVIEW_FQN = "ee.schimke.composeai.preview.WearWidgetPreview"
     private val PREVIEW_FQNS =
       setOf(
         "androidx.compose.ui.tooling.preview.Preview",
@@ -488,6 +489,7 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
     val animationSpec = extractAnimationSpec(annotations)
     val focusSpecs = extractFocusSpecs(annotations)
     val ambientSpec = extractAmbientSpec(annotations)
+    val wearWidgetSpec = extractWearWidgetSpec(annotations)
     // @RoboComposePreviewOptions, similarly, applies to the function as a
     // whole — each timing fans out into its own manifest entry, orthogonal
     // to any multi-preview expansion.
@@ -537,6 +539,7 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
             previewParameter,
             previewSourceFile,
             inferredTargets,
+            wearWidgetSpec,
           )
         )
       }
@@ -560,6 +563,7 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
             previewParameter,
             previewSourceFile,
             inferredTargets,
+            wearWidgetSpec,
           )
         )
       }
@@ -830,6 +834,22 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
     }
   }
 
+  private data class WearWidgetSpec(
+    val frame: String,
+    val title: String,
+    val icon: String
+  )
+
+  private fun extractWearWidgetSpec(annotations: List<AnnotationInfo>): WearWidgetSpec? {
+    val ann = annotations.firstOrNull { it.name == WEAR_WIDGET_PREVIEW_FQN } ?: return null
+    val pv = ann.parameterValues
+    return WearWidgetSpec(
+      frame = (pv.getValue("frame") as? String) ?: "small",
+      title = (pv.getValue("title") as? String) ?: "Wear Widget",
+      icon = (pv.getValue("icon") as? String) ?: "🤖"
+    )
+  }
+
   /**
    * Reads `@AnimatedPreview(durationMs, frameIntervalMs, showCurves)` off the function annotation
    * list. Single-shot — at most one animation capture per function, so we return a nullable spec
@@ -1045,8 +1065,9 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
     previewParameter: Pair<String, Int>?,
     previewSourceFile: String?,
     inferredTargets: Lazy<List<PreviewTarget>>,
+    wearWidgetSpec: WearWidgetSpec?,
   ): PreviewInfo {
-    val params = extractPreviewParams(ann, wrapperClassName, previewParameter)
+    val params = extractPreviewParams(ann, wrapperClassName, previewParameter, wearWidgetSpec)
     val fqn = "${classInfo.name}.${method.name}"
     val suffix = buildVariantSuffix(params)
     val id = fqn + suffix
@@ -1123,6 +1144,7 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
     ann: AnnotationInfo,
     wrapperClassName: String?,
     previewParameter: Pair<String, Int>?,
+    wearWidgetSpec: WearWidgetSpec?,
   ): PreviewParams {
     val pv = ann.parameterValues
     val kind = if (ann.name == TILE_PREVIEW_FQN) PreviewKind.TILE else PreviewKind.COMPOSE
@@ -1183,6 +1205,9 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
         if (kind == PreviewKind.TILE) null else previewParameter?.first,
       previewParameterLimit = previewParameter?.second ?: Int.MAX_VALUE,
       kind = kind,
+      wearWidgetFrame = wearWidgetSpec?.frame,
+      wearWidgetTitle = wearWidgetSpec?.title,
+      wearWidgetIcon = wearWidgetSpec?.icon,
       // @ScrollingPreview is applied by `makePreview` via `.copy(scroll = …)` so
       // the timings fan-out and scroll spec live side-by-side in one place.
     )

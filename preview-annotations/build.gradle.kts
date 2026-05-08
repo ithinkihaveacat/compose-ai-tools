@@ -7,6 +7,10 @@ plugins {
 // Annotation-only artifact — deliberately no runtime deps so adding it to a
 // Compose app classpath never drags anything else in.
 
+dependencies {
+  compileOnly(libs.compose.ui.tooling.preview.wrapper)
+}
+
 composeAiMavenPublishing {
   coordinates(
     artifactId = "preview-annotations",

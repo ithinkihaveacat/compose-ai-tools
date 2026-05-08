@@ -332,6 +332,61 @@ class RenderEngineTest {
     }
   }
 
+  @Test
+  fun wearWidgetFrameRendersWithFrame() {
+    val outputDir = tempFolder.newFolder("renders-widget")
+    System.setProperty(RenderEngine.OUTPUT_DIR_PROP, outputDir.absolutePath)
+    System.setProperty("roborazzi.test.record", "true")
+    val host = RobolectricHost()
+    host.start()
+    try {
+      val overrides = ee.schimke.composeai.daemon.protocol.PreviewOverrides(
+        wearWidgetFrame = "small",
+        wearWidgetTitle = "Test Widget"
+      )
+      val jsonStr = Json.encodeToString(ee.schimke.composeai.daemon.protocol.PreviewOverrides.serializer(), overrides)
+      val base64Str = java.util.Base64.getUrlEncoder().encodeToString(jsonStr.toByteArray(Charsets.UTF_8))
+      
+      val request =
+        RenderRequest.Render(
+          payload =
+            "className=ee.schimke.composeai.daemon.RedFixturePreviewsKt;" +
+              "functionName=RedSquare;" +
+              "widthPx=227;heightPx=227;density=1.0;" +
+              "showBackground=true;" +
+              "outputBaseName=wear-widget-frame;" +
+              "overrides=$base64Str"
+        )
+      val result = host.submit(request, timeoutMs = 120_000)
+
+      assertNotNull("pngPath must be populated", result.pngPath)
+      val pngFile = File(result.pngPath!!)
+      assertTrue("rendered PNG must exist", pngFile.exists())
+
+      val img = javax.imageio.ImageIO.read(pngFile)
+      assertNotNull("PNG must decode", img)
+      assertEquals(227, img.width)
+      assertEquals(227, img.height)
+
+      val expectedRgb = 0xEF5350
+      val matchPct = pixelMatchPct(img, expectedRgb, perChannelTolerance = 8)
+      assertTrue(
+        "expected >= 15% of pixels close to #EF5350; got ${"%.2f".format(matchPct * 100)}%",
+        matchPct >= 0.15,
+      )
+      
+      val blackRgb = 0x000000
+      val blackMatchPct = pixelMatchPct(img, blackRgb, perChannelTolerance = 8)
+      assertTrue(
+        "expected >= 50% of pixels close to #000000; got ${"%.2f".format(blackMatchPct * 100)}%",
+        blackMatchPct >= 0.50,
+      )
+
+    } finally {
+      host.shutdown()
+    }
+  }
+
   /**
    * Returns the fraction of pixels in [img] whose RGB channels are within [perChannelTolerance]
    * of the expected `0xRRGGBB` colour. Inlined here rather than imported from the harness's

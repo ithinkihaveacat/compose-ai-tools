@@ -2,8 +2,21 @@ package ee.schimke.composeai.daemon
 
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
@@ -293,7 +306,20 @@ class RenderEngine(
                       renderMode = spec.renderMode,
                       sink = RecordingExtensionCompositionSink(),
                     ) {
-                      Box(modifier = Modifier.fillMaxSize()) { InvokeComposable(composableMethod) }
+                      val overrides = spec.overrides
+                      val frame = overrides?.wearWidgetFrame
+                      println("RenderEngine: frame=$frame, overrides=$overrides")
+                      if (frame != null) {
+                        WearWidgetFrame(
+                          frameType = frame,
+                          title = overrides.wearWidgetTitle,
+                          icon = overrides.wearWidgetIcon
+                        ) {
+                          InvokeComposable(composableMethod)
+                        }
+                      } else {
+                        Box(modifier = Modifier.fillMaxSize()) { InvokeComposable(composableMethod) }
+                      }
                     }
                   }
                   InspectablePreviewContent(slotTableCapture, content)
@@ -701,6 +727,50 @@ internal fun isRoundDevice(device: String?): Boolean {
 @Composable
 private fun InvokeComposable(composableMethod: ComposableMethod) {
   composableMethod.invoke(currentComposer, null)
+}
+
+@Composable
+private fun WearWidgetFrame(
+  frameType: String,
+  title: String?,
+  icon: String?,
+  content: @Composable () -> Unit
+) {
+  val height = when (frameType.lowercase()) {
+    "small" -> 70.dp
+    "large" -> 100.dp
+    else -> 70.dp
+  }
+  val width = 160.dp // Default width that fits in circle
+
+  Box(
+    modifier = Modifier.fillMaxSize().background(Color.Black),
+    contentAlignment = Alignment.Center
+  ) {
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.Center
+    ) {
+      // Header: Icon + Text
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(bottom = 8.dp)
+      ) {
+        Text(text = icon ?: "🤖", fontSize = 16.sp, modifier = Modifier.padding(end = 4.dp))
+        Text(text = title ?: "Wear Widget", color = Color.White, fontSize = 14.sp)
+      }
+
+      // The Widget
+      Box(
+        modifier = Modifier
+          .size(width, height)
+          .clip(RoundedCornerShape(16.dp))
+          .background(Color.DarkGray)
+      ) {
+        content()
+      }
+    }
+  }
 }
 
 @Composable
