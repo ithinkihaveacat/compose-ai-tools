@@ -8,6 +8,7 @@ Auto-generated from `main`. Browse inline or compare against PR branches.
 |---------|-------|
 | `FadeInBoxAnimatedPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/AnimatedPreviewsKt.FadeInBoxAnimatedPreview.gif" width="150" /> |
 | `RevealLabelAnimatedPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/AnimatedPreviewsKt.RevealLabelAnimatedPreview.gif" width="150" /> |
+| `NavHostHomePreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/NavHostPreviewKt.NavHostHomePreview_NavHost_Home.png" width="150" /> |
 | `BodyTextPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/PreviewParameterPreviewsKt.BodyTextPreview_Body_Text_Lorem_ipsum_dolor_sit_amet_conse.png" width="150" /> |
 | `BodyTextPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/PreviewParameterPreviewsKt.BodyTextPreview_Body_Text_Short.png" width="150" /> |
 | `BodyTextPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/PreviewParameterPreviewsKt.BodyTextPreview_Body_Text_The_quick_brown_fox.png" width="150" /> |
@@ -36,7 +37,34 @@ Auto-generated from `main`. Browse inline or compare against PR branches.
 | `RedToBlueScrollGifPreview · scroll gif` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/ScrollPreviewsKt.RedToBlueScrollGifPreview_ScrollGif.gif" width="150" /> |
 | `RedToBlueScrollPreview · scroll top` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/ScrollPreviewsKt.RedToBlueScrollPreview_Scroll_SCROLL_top.png" width="150" /> |
 | `RedToBlueScrollPreview · scroll end` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/ScrollPreviewsKt.RedToBlueScrollPreview_Scroll_SCROLL_end.png" width="150" /> |
+| `SemanticsClickableButtonPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/SemanticsCoreFieldsPreviewsKt.SemanticsClickableButtonPreview.png" width="150" /> |
+| `SemanticsContentDescriptionPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/SemanticsCoreFieldsPreviewsKt.SemanticsContentDescriptionPreview.png" width="150" /> |
+| `SemanticsMergeDescendantsPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/SemanticsCoreFieldsPreviewsKt.SemanticsMergeDescendantsPreview.png" width="150" /> |
+| `SemanticsTestTagPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/SemanticsCoreFieldsPreviewsKt.SemanticsTestTagPreview.png" width="150" /> |
 | `SettingsListScrollGifPreview · scroll gif` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/SettingsListScrollGifPreviewKt.SettingsListScrollGifPreview_SettingsListScrollGif.gif" width="150" /> |
+| `FitsInBoundsPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/TruncationPreviewsKt.FitsInBoundsPreview.png" width="150" /> |
+| `TruncatedHeightClipPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/TruncationPreviewsKt.TruncatedHeightClipPreview.png" width="150" /> |
+| `TruncatedMaxLinesEllipsisPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/TruncationPreviewsKt.TruncatedMaxLinesEllipsisPreview.png" width="150" /> |
+| `TruncatedWidthNoWrapPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android/TruncationPreviewsKt.TruncatedWidthNoWrapPreview.png" width="150" /> |
+
+## samples:android-alpha
+
+| Preview | Image |
+|---------|-------|
+| `FocusOverlayPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/FocusOverlayPreview_Focus_Overlay_FOCUS_0.png" width="150" /> |
+| `FocusOverlayPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/FocusOverlayPreview_Focus_Overlay_FOCUS_1.png" width="150" /> |
+| `FocusOverlayPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/FocusOverlayPreview_Focus_Overlay_FOCUS_2.png" width="150" /> |
+| `FocusOverlayPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/FocusOverlayPreview_Focus_Overlay_FOCUS_3.png" width="150" /> |
+| `FocusTraversalPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/FocusTraversalPreview_Focus_Traversal_FOCUS_step1_Next.png" width="150" /> |
+| `FocusTraversalPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/FocusTraversalPreview_Focus_Traversal_FOCUS_step2_Next.png" width="150" /> |
+| `FocusTraversalPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/FocusTraversalPreview_Focus_Traversal_FOCUS_step3_Previous.png" width="150" /> |
+| `FocusTraversalPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/FocusTraversalPreview_Focus_Traversal_FOCUS_step4_Next.png" width="150" /> |
+| `InsetFocusRingAnimatedPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/InsetFocusRingAnimatedPreview_Inset_Focus_Ring_moving.gif" width="150" /> |
+| `InsetFocusRingFanOutPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/InsetFocusRingFanOutPreview_Inset_Focus_Ring_fan-out_FOCUS_0.png" width="150" /> |
+| `InsetFocusRingFanOutPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/InsetFocusRingFanOutPreview_Inset_Focus_Ring_fan-out_FOCUS_1.png" width="150" /> |
+| `InsetFocusRingFanOutPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/InsetFocusRingFanOutPreview_Inset_Focus_Ring_fan-out_FOCUS_2.png" width="150" /> |
+| `InsetFocusRingFanOutPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/InsetFocusRingFanOutPreview_Inset_Focus_Ring_fan-out_FOCUS_3.png" width="150" /> |
+| `OpacityFocusPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:android-alpha/OpacityFocusPreview_Opacity_Focus.png" width="150" /> |
 
 ## samples:android-daemon-bench
 
@@ -106,6 +134,8 @@ Auto-generated from `main`. Browse inline or compare against PR branches.
 
 | Preview | Image |
 |---------|-------|
+| `AmbientStatusAmbientPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:wear/AmbientPreviewsKt.AmbientStatusAmbientPreview_Ambient_body_ambient.png" width="150" /> |
+| `AmbientStatusInteractivePreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:wear/AmbientPreviewsKt.AmbientStatusInteractivePreview_Ambient_body_interactive.png" width="150" /> |
 | `ActivityListFontScalesPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:wear/PreviewsKt.ActivityListFontScalesPreview_Fonts_-_Large.png" width="150" /> |
 | `ActivityListFontScalesPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:wear/PreviewsKt.ActivityListFontScalesPreview_Fonts_-_Larger.png" width="150" /> |
 | `ActivityListFontScalesPreview` | <img src="https://raw.githubusercontent.com/ithinkihaveacat/compose-ai-tools/compose-preview/main/renders/samples:wear/PreviewsKt.ActivityListFontScalesPreview_Fonts_-_Largest.png" width="150" /> |
