@@ -907,25 +907,23 @@ class JsonRpcServer(
     return buildString {
       if (previewId.isNotEmpty()) append("previewId=").append(previewId)
       val previewInfo = previewIndex.byId(previewId)
-      val frame = overrides?.wearWidgetFrame ?: previewInfo?.params?.wearWidgetFrame
-      val title = overrides?.wearWidgetTitle ?: previewInfo?.params?.wearWidgetTitle
-      val icon = overrides?.wearWidgetIcon ?: previewInfo?.params?.wearWidgetIcon
+      val extensionParams =
+        buildMap<String, String> {
+          previewInfo?.params?.extensionParams?.let { putAll(it) }
+          overrides?.extensionParams?.let { putAll(it) }
+        }
 
       val extensionBag =
         PreviewOverrides(
           material3Theme = overrides?.material3Theme,
           wallpaper = overrides?.wallpaper,
-          wearWidgetFrame = frame,
-          wearWidgetTitle = title,
-          wearWidgetIcon = icon,
+          extensionParams = extensionParams,
         )
 
       val hasExtensionOverrides =
         extensionBag.material3Theme != null ||
           extensionBag.wallpaper != null ||
-          extensionBag.wearWidgetFrame != null ||
-          extensionBag.wearWidgetTitle != null ||
-          extensionBag.wearWidgetIcon != null
+          extensionBag.extensionParams.isNotEmpty()
 
       if (overrides != null) {
         val deviceToken = overrides.device?.takeIf { it.isNotBlank() }

@@ -340,9 +340,12 @@ class RenderEngineTest {
     val host = RobolectricHost()
     host.start()
     try {
-      val overrides = ee.schimke.composeai.daemon.protocol.PreviewOverrides(
-        wearWidgetFrame = "small",
-        wearWidgetTitle = "Test Widget"
+      val overrides = ee.schimke.composeai.daemon.protocol.PreviewOverrides().copy(
+        extensionParams = mapOf(
+          "formFactor" to "wearWidget",
+          "frame" to "small",
+          "title" to "Test Widget"
+        )
       )
       val jsonStr = Json.encodeToString(ee.schimke.composeai.daemon.protocol.PreviewOverrides.serializer(), overrides)
       val base64Str = java.util.Base64.getUrlEncoder().encodeToString(jsonStr.toByteArray(Charsets.UTF_8))

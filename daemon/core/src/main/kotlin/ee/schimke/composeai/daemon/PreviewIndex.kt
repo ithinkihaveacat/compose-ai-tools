@@ -123,9 +123,7 @@ data class PreviewParamsDto(
    * plugin's annotation reader hands back the raw `0xAARRGGBB` value.
    */
   val backgroundColor: Long? = null,
-  val wearWidgetFrame: String? = null,
-  val wearWidgetTitle: String? = null,
-  val wearWidgetIcon: String? = null,
+  val extensionParams: Map<String, String> = emptyMap(),
 )
 
 /**

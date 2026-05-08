@@ -199,7 +199,5 @@ data class RenderPreviewParams(
     /** Mirrors `@PreviewParameter.limit`. `Int.MAX_VALUE` = take every value. */
     val previewParameterLimit: Int = Int.MAX_VALUE,
     val kind: PreviewKind = PreviewKind.COMPOSE,
-    val wearWidgetFrame: String? = null,
-    val wearWidgetTitle: String? = null,
-    val wearWidgetIcon: String? = null,
+    val extensionParams: Map<String, String> = emptyMap(),
 )

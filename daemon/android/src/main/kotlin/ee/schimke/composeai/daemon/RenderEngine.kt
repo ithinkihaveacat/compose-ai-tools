@@ -307,18 +307,10 @@ class RenderEngine(
                       sink = RecordingExtensionCompositionSink(),
                     ) {
                       val overrides = spec.overrides
-                      val frame = overrides?.wearWidgetFrame
-                      println("RenderEngine: frame=$frame, overrides=$overrides")
-                      if (frame != null) {
-                        WearWidgetFrame(
-                          frameType = frame,
-                          title = overrides.wearWidgetTitle,
-                          icon = overrides.wearWidgetIcon
-                        ) {
-                          InvokeComposable(composableMethod)
-                        }
-                      } else {
-                        Box(modifier = Modifier.fillMaxSize()) { InvokeComposable(composableMethod) }
+                      val extensionParams = overrides?.extensionParams ?: emptyMap()
+                      val frameDecorator = FrameDecoratorRegistry.getDecorator(extensionParams)
+                      frameDecorator.Decorate(extensionParams) {
+                        InvokeComposable(composableMethod)
                       }
                     }
                   }
@@ -769,6 +761,37 @@ private fun WearWidgetFrame(
       ) {
         content()
       }
+    }
+  }
+}
+
+interface FrameDecorator {
+  @Composable
+  fun Decorate(params: Map<String, String>, content: @Composable () -> Unit)
+}
+
+object DefaultFrameDecorator : FrameDecorator {
+  @Composable
+  override fun Decorate(params: Map<String, String>, content: @Composable () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize()) { content() }
+  }
+}
+
+object WearWidgetFrameDecorator : FrameDecorator {
+  @Composable
+  override fun Decorate(params: Map<String, String>, content: @Composable () -> Unit) {
+    val frame = params["frame"]
+    val title = params["title"]
+    val icon = params["icon"]
+    WearWidgetFrame(frameType = frame ?: "small", title = title, icon = icon, content = content)
+  }
+}
+
+object FrameDecoratorRegistry {
+  fun getDecorator(params: Map<String, String>): FrameDecorator {
+    return when (params["formFactor"]) {
+      "wearWidget" -> WearWidgetFrameDecorator
+      else -> DefaultFrameDecorator
     }
   }
 }

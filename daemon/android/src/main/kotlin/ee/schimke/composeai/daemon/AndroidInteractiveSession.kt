@@ -342,8 +342,7 @@ internal constructor(
     lastUsedAtMs.set(System.currentTimeMillis())
     val replyLatch = CountDownLatch(1)
     val replyError = AtomicReference<Throwable?>(null)
-    val replyReason =
-      AtomicReference<ee.schimke.composeai.daemon.protocol.UiAutomatorUnsupportedReason?>(null)
+    val replyReason = AtomicReference<Any?>(null)
     slot.interactiveCommands.put(
       InteractiveCommand.FindUiAutomatorEvidence(
         streamId = streamId,
@@ -364,7 +363,7 @@ internal constructor(
       )
     }
     replyError.get()?.let { throw it }
-    return replyReason.get()
+    return replyReason.get()?.let { copyUiAutomatorUnsupportedReasonAcrossClassloaders(it) }
   }
 
   /**
@@ -668,6 +667,46 @@ internal constructor(
       classLoaderName = name,
       pngPath = pngPath,
       metrics = metrics?.let { LinkedHashMap(it) },
+    )
+  }
+
+  private fun copyUiAutomatorUnsupportedReasonAcrossClassloaders(raw: Any): ee.schimke.composeai.daemon.protocol.UiAutomatorUnsupportedReason {
+    val cls = raw.javaClass
+    val codeObj = cls.getMethod("getCode").invoke(raw)
+    val codeName = codeObj.javaClass.getMethod("name").invoke(codeObj) as String
+    val code = ee.schimke.composeai.daemon.protocol.UiAutomatorUnsupportedReasonCode.valueOf(codeName)
+    val actionKind = cls.getMethod("getActionKind").invoke(raw) as String
+    val selectorJson = cls.getMethod("getSelectorJson").invoke(raw) as String?
+    val useUnmergedTree = cls.getMethod("getUseUnmergedTree").invoke(raw) as Boolean
+    val matchCount = cls.getMethod("getMatchCount").invoke(raw) as Int
+    val nearMatchObj = cls.getMethod("getNearMatch").invoke(raw)
+    val nearMatch = nearMatchObj?.let { copyNearMatchNodeAcrossClassloaders(it) }
+    return ee.schimke.composeai.daemon.protocol.UiAutomatorUnsupportedReason(
+      code = code,
+      actionKind = actionKind,
+      selectorJson = selectorJson,
+      useUnmergedTree = useUnmergedTree,
+      matchCount = matchCount,
+      nearMatch = nearMatch,
+    )
+  }
+
+  private fun copyNearMatchNodeAcrossClassloaders(raw: Any): ee.schimke.composeai.daemon.protocol.UiAutomatorNearMatchNode {
+    val cls = raw.javaClass
+    val text = cls.getMethod("getText").invoke(raw) as String?
+    val contentDescription = cls.getMethod("getContentDescription").invoke(raw) as String?
+    val testTag = cls.getMethod("getTestTag").invoke(raw) as String?
+    val role = cls.getMethod("getRole").invoke(raw) as String?
+    @Suppress("UNCHECKED_CAST")
+    val actions = cls.getMethod("getActions").invoke(raw) as List<String>
+    val boundsInScreen = cls.getMethod("getBoundsInScreen").invoke(raw) as String
+    return ee.schimke.composeai.daemon.protocol.UiAutomatorNearMatchNode(
+      text = text,
+      contentDescription = contentDescription,
+      testTag = testTag,
+      role = role,
+      actions = actions,
+      boundsInScreen = boundsInScreen,
     )
   }
 

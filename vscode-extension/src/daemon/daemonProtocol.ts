@@ -431,6 +431,10 @@ export interface PreviewOverrides {
      * Per-render LocalInspectionMode override. Undefined preserves normal preview behaviour.
      */
     inspectionMode?: boolean;
+    /**
+     * Optional extension-specific parameters.
+     */
+    extensionParams?: Record<string, string>;
 }
 
 export interface RenderNowParams {

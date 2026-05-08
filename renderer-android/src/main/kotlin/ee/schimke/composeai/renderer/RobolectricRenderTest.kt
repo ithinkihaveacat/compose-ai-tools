@@ -748,17 +748,10 @@ abstract class RobolectricRenderTestBase(
                                 }
                             }
                             
-                            val frame = params.wearWidgetFrame
+                            val extensionParams = params.extensionParams
+                            val frameDecorator = FrameDecoratorRegistry.getDecorator(extensionParams)
                             val framedCore: @Composable () -> Unit = {
-                                if (frame != null) {
-                                    WearWidgetFrame(
-                                        frameType = frame,
-                                        title = params.wearWidgetTitle,
-                                        icon = params.wearWidgetIcon
-                                    ) {
-                                        core()
-                                    }
-                                } else {
+                                frameDecorator.Decorate(extensionParams) {
                                     core()
                                 }
                             }
@@ -1904,6 +1897,38 @@ class RobolectricRenderTest(
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
         fun previews(): List<Array<Any>> = PreviewManifestLoader.loadShard(0, 1)
+    }
+}
+
+interface FrameDecorator {
+    @Composable
+    fun Decorate(params: Map<String, String>, content: @Composable () -> Unit)
+}
+
+object DefaultFrameDecorator : FrameDecorator {
+    @Composable
+    override fun Decorate(params: Map<String, String>, content: @Composable () -> Unit) {
+        Box(modifier = Modifier.fillMaxSize()) { content() }
+    }
+}
+
+object WearWidgetFrameDecorator : FrameDecorator {
+    @Composable
+    override fun Decorate(params: Map<String, String>, content: @Composable () -> Unit) {
+        val frame = params["frame"]
+        val title = params["title"]
+        val icon = params["icon"]
+        WearWidgetFrame(frameType = frame ?: "small", title = title, icon = icon, content = content)
+    }
+}
+
+object FrameDecoratorRegistry {
+    fun getDecorator(params: Map<String, String>): FrameDecorator {
+        println("FrameDecoratorRegistry: formFactor = ${params["formFactor"]}, keys = ${params.keys}")
+        return when (params["formFactor"]) {
+            "wearWidget" -> WearWidgetFrameDecorator
+            else -> DefaultFrameDecorator
+        }
     }
 }
 

@@ -459,12 +459,8 @@ data class PreviewOverrides(
    * Compose-Multiplatform) ignore this field.
    */
   val focus: FocusOverride? = null,
-  /** Optional Wear OS widget frame type (e.g., "small", "large"). */
-  val wearWidgetFrame: String? = null,
-  /** Optional Wear OS widget frame title. */
-  val wearWidgetTitle: String? = null,
-  /** Optional Wear OS widget frame icon (e.g., emoji or resource name). */
-  val wearWidgetIcon: String? = null,
+  /** Optional extension-specific parameters. */
+  val extensionParams: Map<String, String> = emptyMap(),
 )
 
 /**

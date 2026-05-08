@@ -70,6 +70,8 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
 
   companion object {
     private const val WEAR_WIDGET_PREVIEW_FQN = "ee.schimke.composeai.preview.WearWidgetPreview"
+    private const val REMOTE_COMPOSE_PREVIEW_FQN =
+      "ee.schimke.composeai.preview.RemoteComposePreview"
     private val PREVIEW_FQNS =
       setOf(
         "androidx.compose.ui.tooling.preview.Preview",
@@ -1201,9 +1203,33 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
         if (kind == PreviewKind.TILE) null else previewParameter?.first,
       previewParameterLimit = previewParameter?.second ?: Int.MAX_VALUE,
       kind = kind,
-      wearWidgetFrame = wearWidgetSpec?.frame,
-      wearWidgetTitle = wearWidgetSpec?.title,
-      wearWidgetIcon = wearWidgetSpec?.icon,
+      extensionParams =
+        buildMap {
+          wearWidgetSpec?.let { spec ->
+            put("formFactor", "wearWidget")
+            put("frame", spec.frame)
+            put("title", spec.title)
+            put("icon", spec.icon)
+          }
+          val remoteAnn =
+            if (ann.name == REMOTE_COMPOSE_PREVIEW_FQN) ann
+            else
+              ann.getClassInfo()?.getAnnotationInfo()?.firstOrNull {
+                it.name == REMOTE_COMPOSE_PREVIEW_FQN
+              }
+          if (remoteAnn != null) {
+            val pv = remoteAnn.parameterValues
+            val formFactor = pv.getValue("formFactor") as String
+            put("formFactor", formFactor)
+            val params = pv.getValue("params") as? Array<*> ?: emptyArray<Any>()
+            params.filterIsInstance<String>().forEach { param ->
+              val parts = param.split("=", limit = 2)
+              if (parts.size == 2) {
+                put(parts[0], parts[1])
+              }
+            }
+          }
+        },
       // @ScrollingPreview is applied by `makePreview` via `.copy(scroll = …)` so
       // the timings fan-out and scroll spec live side-by-side in one place.
     )

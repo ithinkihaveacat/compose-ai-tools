@@ -528,8 +528,7 @@ sealed interface InteractiveCommand {
     val inputText: String?,
     val replyLatch: CountDownLatch,
     val replyError: AtomicReference<Throwable?>,
-    val replyReason:
-      AtomicReference<ee.schimke.composeai.daemon.protocol.UiAutomatorUnsupportedReason?>,
+    val replyReason: AtomicReference<Any?>,
   ) : InteractiveCommand
 
   /**
