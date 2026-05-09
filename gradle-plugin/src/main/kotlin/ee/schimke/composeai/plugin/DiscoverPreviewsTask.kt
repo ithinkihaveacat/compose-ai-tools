@@ -69,9 +69,6 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
   }
 
   companion object {
-    private const val WEAR_WIDGET_PREVIEW_FQN = "ee.schimke.composeai.preview.WearWidgetPreview"
-    private const val REMOTE_COMPOSE_PREVIEW_FQN =
-      "ee.schimke.composeai.preview.RemoteComposePreview"
     private val PREVIEW_FQNS =
       setOf(
         "androidx.compose.ui.tooling.preview.Preview",
@@ -491,7 +488,6 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
     val animationSpec = extractAnimationSpec(annotations)
     val focusSpecs = extractFocusSpecs(annotations)
     val ambientSpec = extractAmbientSpec(annotations)
-    val wearWidgetSpec = extractWearWidgetSpec(annotations)
     // @RoboComposePreviewOptions, similarly, applies to the function as a
     // whole — each timing fans out into its own manifest entry, orthogonal
     // to any multi-preview expansion.
@@ -541,7 +537,6 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
             previewParameter,
             previewSourceFile,
             inferredTargets,
-            wearWidgetSpec,
           )
         )
       }
@@ -565,7 +560,6 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
             previewParameter,
             previewSourceFile,
             inferredTargets,
-            wearWidgetSpec,
           )
         )
       }
@@ -836,17 +830,6 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
     }
   }
 
-  private data class WearWidgetSpec(val frame: String, val title: String, val icon: String)
-
-  private fun extractWearWidgetSpec(annotations: List<AnnotationInfo>): WearWidgetSpec? {
-    val ann = annotations.firstOrNull { it.name == WEAR_WIDGET_PREVIEW_FQN } ?: return null
-    val pv = ann.parameterValues
-    return WearWidgetSpec(
-      frame = (pv.getValue("frame") as? String) ?: "small",
-      title = (pv.getValue("title") as? String) ?: "Wear Widget",
-      icon = (pv.getValue("icon") as? String) ?: "🤖",
-    )
-  }
 
   /**
    * Reads `@AnimatedPreview(durationMs, frameIntervalMs, showCurves)` off the function annotation
@@ -1063,9 +1046,8 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
     previewParameter: Pair<String, Int>?,
     previewSourceFile: String?,
     inferredTargets: Lazy<List<PreviewTarget>>,
-    wearWidgetSpec: WearWidgetSpec?,
   ): PreviewInfo {
-    val params = extractPreviewParams(ann, wrapperClassName, previewParameter, wearWidgetSpec)
+    val params = extractPreviewParams(ann, wrapperClassName, previewParameter)
     val fqn = "${classInfo.name}.${method.name}"
     val suffix = buildVariantSuffix(params)
     val id = fqn + suffix
@@ -1142,7 +1124,6 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
     ann: AnnotationInfo,
     wrapperClassName: String?,
     previewParameter: Pair<String, Int>?,
-    wearWidgetSpec: WearWidgetSpec?,
   ): PreviewParams {
     val pv = ann.parameterValues
     val kind = if (ann.name == TILE_PREVIEW_FQN) PreviewKind.TILE else PreviewKind.COMPOSE
@@ -1179,8 +1160,11 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
       // renderer and Studio's own preview pane.
       effectiveDensity = DeviceDimensions.DEFAULT_DENSITY
     }
+    val name = (pv.getValue("name") as? String)?.ifBlank { null }
+    val group = (pv.getValue("group") as? String)?.ifBlank { null }
+
     return PreviewParams(
-      name = (pv.getValue("name") as? String)?.ifBlank { null },
+      name = name,
       device = device,
       widthDp = effectiveWidth,
       heightDp = effectiveHeight,
@@ -1191,7 +1175,7 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
       backgroundColor = (pv.getValue("backgroundColor") as? Long) ?: 0L,
       uiMode = (pv.getValue("uiMode") as? Int)?.takeIf { it > 0 } ?: 0,
       locale = (pv.getValue("locale") as? String)?.ifBlank { null },
-      group = (pv.getValue("group") as? String)?.ifBlank { null },
+      group = group,
       // @PreviewWrapper targets composables. Tile previews aren't composable,
       // so even if the annotation happened to be present on the function,
       // the wrapper's `Wrap(content)` would never wrap the tile View.
@@ -1204,31 +1188,17 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
       previewParameterLimit = previewParameter?.second ?: Int.MAX_VALUE,
       kind = kind,
       extensionParams =
-        buildMap {
-          wearWidgetSpec?.let { spec ->
-            put("formFactor", "wearWidget")
-            put("frame", spec.frame)
-            put("title", spec.title)
-            put("icon", spec.icon)
+        if (group == "WearWidget") {
+          val m = mutableMapOf(
+            "formFactor" to "wearWidget",
+            "frame" to if (effectiveHeight == 100) "large" else "small"
+          )
+          if (name != null) {
+            m["title"] = name
           }
-          val remoteAnn =
-            if (ann.name == REMOTE_COMPOSE_PREVIEW_FQN) ann
-            else
-              ann.getClassInfo()?.getAnnotationInfo()?.firstOrNull {
-                it.name == REMOTE_COMPOSE_PREVIEW_FQN
-              }
-          if (remoteAnn != null) {
-            val pv = remoteAnn.parameterValues
-            val formFactor = pv.getValue("formFactor") as String
-            put("formFactor", formFactor)
-            val params = pv.getValue("params") as? Array<*> ?: emptyArray<Any>()
-            params.filterIsInstance<String>().forEach { param ->
-              val parts = param.split("=", limit = 2)
-              if (parts.size == 2) {
-                put(parts[0], parts[1])
-              }
-            }
-          }
+          m
+        } else {
+          emptyMap()
         },
       // @ScrollingPreview is applied by `makePreview` via `.copy(scroll = …)` so
       // the timings fan-out and scroll spec live side-by-side in one place.

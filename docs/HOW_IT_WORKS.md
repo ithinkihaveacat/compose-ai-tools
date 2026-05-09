@@ -12,11 +12,11 @@ Scan compiled class files for `@Preview` annotations →
 ```
 For each method in each compiled class:
 
-  1. Check for direct @Preview, @Preview.Container, or @RemoteComposePreview annotations on the method.
-     If found, extract preview parameters (name, device, dimensions, backgroundColor, etc.). For @RemoteComposePreview, extract `formFactor` and `params` into `extensionParams`. Emit a preview entry.
+  1. Check for direct @Preview or @Preview.Container annotations on the method.
+     If found, extract preview parameters (name, device, dimensions, backgroundColor, etc.). If the `group` is "WearWidget", it is identified as a Wear Widget preview, and `frame` and `title` are inferred from `heightDp` and `name` respectively, populating `extensionParams`. Emit a preview entry.
 
-  2. Otherwise, walk the method's annotations looking for multi-preview meta-annotations or meta-annotations that carry `@RemoteComposePreview` (like `@WearWidgetPreview`).
-     For each annotation, check whether *its* annotation class carries `@Preview` or `@RemoteComposePreview`.
+  2. Otherwise, walk the method's annotations looking for multi-preview meta-annotations.
+     For each annotation, check whether *its* annotation class carries `@Preview`.
      Recurse through meta-annotations (with cycle detection via a visited set).
      Emit a preview entry for each found transitively.
 

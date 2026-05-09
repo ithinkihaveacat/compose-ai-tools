@@ -43,6 +43,9 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import androidx.wear.compose.ui.tooling.preview.WearPreviewFontScales
 import androidx.wear.compose.ui.tooling.preview.WearPreviewLargeRound
 import androidx.wear.compose.ui.tooling.preview.WearPreviewSmallRound
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
 import ee.schimke.composeai.preview.ScrollMode
 import ee.schimke.composeai.preview.ScrollingPreview
 
@@ -344,5 +347,13 @@ fun ActivityListGifPreview() {
         ) {
             LongActivityListScreen()
         }
+    }
+}
+
+@Preview(group = "WearWidget", name = "Test", heightDp = 70)
+@Composable
+fun TestWidgetPreview() {
+    Box(modifier = Modifier.fillMaxSize().background(Color.White), contentAlignment = Alignment.Center) {
+        Text("Test", color = Color.Black)
     }
 }
