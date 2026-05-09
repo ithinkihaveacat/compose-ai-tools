@@ -830,7 +830,6 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
     }
   }
 
-
   /**
    * Reads `@AnimatedPreview(durationMs, frameIntervalMs, showCurves)` off the function annotation
    * list. Single-shot — at most one animation capture per function, so we return a nullable spec
@@ -1127,9 +1126,20 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
   ): PreviewParams {
     val pv = ann.parameterValues
     val kind = if (ann.name == TILE_PREVIEW_FQN) PreviewKind.TILE else PreviewKind.COMPOSE
-    val device = (pv.getValue("device") as? String)?.ifBlank { null }
-    val rawWidth = (pv.getValue("widthDp") as? Int)?.takeIf { it > 0 }
-    val rawHeight = (pv.getValue("heightDp") as? Int)?.takeIf { it > 0 }
+    val rawGroup = (pv.getValue("group") as? String)?.ifBlank { null }
+    val isWearWidget = rawGroup == "WearWidget"
+    // For the WearWidget convention, heightDp is a frame-size signal (70 = small,
+    // 100 = large), not the render canvas. Force the canvas to wearos_large_round
+    // so the WearWidgetFrame composable (which uses fillMaxSize) has room to lay
+    // out its title row + framed widget content — matching what `@WearWidgetPreview`
+    // produced via its `@Preview(device = "id:wearos_large_round")` meta-annotation.
+    val signalHeight =
+      if (isWearWidget) (pv.getValue("heightDp") as? Int)?.takeIf { it > 0 } else null
+    val device =
+      if (isWearWidget) "id:wearos_large_round"
+      else (pv.getValue("device") as? String)?.ifBlank { null }
+    val rawWidth = if (isWearWidget) null else (pv.getValue("widthDp") as? Int)?.takeIf { it > 0 }
+    val rawHeight = if (isWearWidget) null else (pv.getValue("heightDp") as? Int)?.takeIf { it > 0 }
     val showSystemUi = (pv.getValue("showSystemUi") as? Boolean) ?: false
     // AS-parity sizing: when the user picked a device or asked for the
     // system UI frame, resolve up-front so downstream consumers (renderers,
@@ -1161,7 +1171,7 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
       effectiveDensity = DeviceDimensions.DEFAULT_DENSITY
     }
     val name = (pv.getValue("name") as? String)?.ifBlank { null }
-    val group = (pv.getValue("group") as? String)?.ifBlank { null }
+    val group = rawGroup
 
     return PreviewParams(
       name = name,
@@ -1188,11 +1198,12 @@ abstract class DiscoverPreviewsTask : DefaultTask() {
       previewParameterLimit = previewParameter?.second ?: Int.MAX_VALUE,
       kind = kind,
       extensionParams =
-        if (group == "WearWidget") {
-          val m = mutableMapOf(
-            "formFactor" to "wearWidget",
-            "frame" to if (effectiveHeight == 100) "large" else "small"
-          )
+        if (isWearWidget) {
+          val m =
+            mutableMapOf(
+              "formFactor" to "wearWidget",
+              "frame" to if (signalHeight == 100) "large" else "small",
+            )
           if (name != null) {
             m["title"] = name
           }
